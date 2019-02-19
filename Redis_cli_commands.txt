@@ -1,0 +1,384 @@
+Top Redis-cli commands
+
+---------------------------------------------------------------------------
+
+- Getting configuration
+
+127.0.0.1:6379> config get *
+
+---------------------------------------------------------------------------
+
+- Setting/getting user objects
+
+127.0.0.1:6379> HMSET user:1 username bilgepamukcu password password1
+OK
+127.0.0.1:6379> HMSET user:2 username keanureeves password password2
+OK
+127.0.0.1:6379> HGETALL user:1
+1) "username"
+2) "bilgepamukcu"
+3) "password"
+4) "password1"
+127.0.0.1:6379> HGETALL user:2
+1) "username"
+2) "keanureeves"
+3) "password"
+4) "password2"
+
+---------------------------------------------------------------------------
+
+- Setting/getting string key and value
+
+127.0.0.1:6379> set mykey "my value"
+OK
+127.0.0.1:6379> get mykey
+"my value"
+
+---------------------------------------------------------------------------
+
+- Setting/getting list and list items (strings). Lists are sorted by insertion order.
+
+127.0.0.1:6379> lpush mylist "List Item 1"
+(integer) 1
+127.0.0.1:6379> lpush mylist "List Item 2"
+(integer) 2
+127.0.0.1:6379> lpush mylist "List Item 3"
+(integer) 3
+127.0.0.1:6379> lpush mylist "List Item 4"
+(integer) 4
+127.0.0.1:6379> lrange mylist 0 2
+1) "List Item 4"
+2) "List Item 3"
+3) "List Item 2"
+
+---------------------------------------------------------------------------
+
+- Creating, reading and deleting sets. Sets are unordered lists of strings - non-repeating collections of Strings.
+
+127.0.0.1:6379> sadd mySet "Set Item 1"
+(integer) 1
+127.0.0.1:6379> sadd mySet "Set Item 2"
+(integer) 1
+127.0.0.1:6379> sadd mySet "Set Item 2"
+(integer) 0
+127.0.0.1:6379> sadd mySet "Set Item 3"
+(integer) 1
+127.0.0.1:6379> sadd mySet "Set Item 4"
+(integer) 1
+127.0.0.1:6379> smembers mySet
+1) "Set Item 4"
+2) "Set Item 3"
+3) "Set Item 1"
+4) "Set Item 2"
+127.0.0.1:6379> del mySet
+(integer) 1
+127.0.0.1:6379> smembers mySet
+(empty list or set)
+127.0.0.1:6379>
+
+---------------------------------------------------------------------------
+
+- Creating, reading and deleting Sorted Sets. Same with sets. There are scores here in order to sort related values.
+
+127.0.0.1:6379> zadd mySortedSet 0 "Sorted List Item 1"
+(integer) 1
+127.0.0.1:6379> zadd mySortedSet 0 "Sorted List Item 2"
+(integer) 1
+127.0.0.1:6379> zadd mySortedSet 0 "Sorted List Item 2"
+(integer) 0
+127.0.0.1:6379> zadd mySortedSet 0 "Sorted List Item 3"
+(integer) 1
+127.0.0.1:6379> zadd mySortedSet 0 "Sorted List Item 4"
+(integer) 1
+127.0.0.1:6379> zrangebyscore mySortedSet 0 100
+1) "Sorted List Item 1"
+2) "Sorted List Item 2"
+3) "Sorted List Item 3"
+4) "Sorted List Item 4"
+127.0.0.1:6379> del mySortedSet
+(integer) 1
+127.0.0.1:6379> zrangebyscore mySortedSet 0 100
+(empty list or set)
+
+---------------------------------------------------------------------------
+
+- DUMP: Gets serialized version of the value of searched key.
+
+127.0.0.1:6379> SET newKey "new value"
+OK
+127.0.0.1:6379> GEt newKey
+"new value"
+127.0.0.1:6379> DUMP newKey
+"\x00\tnew value\x06\x00\x8e\n\xb5\xa7\xc5\xe9\x00\xe6"
+
+---------------------------------------------------------------------------
+
+- EXISTS: Checks whether the key exists.
+
+127.0.0.1:6379> SET newKey "New Value"
+OK
+127.0.0.1:6379> EXISTS newKey
+(integer) 1
+127.0.0.1:6379> DEL newKey
+(integer) 1
+127.0.0.1:6379> EXISTS newKey
+(integer) 0
+
+---------------------------------------------------------------------------
+
+- TYPE: Returns the data type of the value stored in the key.
+
+127.0.0.1:6379> SET myNumber 2
+OK
+127.0.0.1:6379> TYPE myNumber
+string
+127.0.0.1:6379> SET myString "2"
+OK
+127.0.0.1:6379> TYPE myString
+string
+
+---------------------------------------------------------------------------
+
+- GETSET: Sets the string value of a key and return its old value.
+
+127.0.0.1:6379> SEt myKey "Value 1"
+OK
+127.0.0.1:6379> GETSET myKey "Value 2"
+"Value 1"
+127.0.0.1:6379> GET myKey
+"Value 2"
+
+---------------------------------------------------------------------------
+
+- MGET: Gets the values of all the given keys.
+
+127.0.0.1:6379> SET myKey1 "Value 1"
+OK
+127.0.0.1:6379> SET myKey2 "Value 2"
+OK
+127.0.0.1:6379> MGET myKey1 myKey2
+1) "Value 1"
+2) "Value 2"
+
+---------------------------------------------------------------------------
+
+- APPEND: Appends a value to a value of a key.
+
+127.0.0.1:6379> SET myKey "Bilge"
+OK
+127.0.0.1:6379> APPEND myKey " "
+(integer) 6
+127.0.0.1:6379> APPEND myKey "Pamukcu"
+(integer) 13
+127.0.0.1:6379> GET myKey
+"Bilge Pamukcu"
+
+---------------------------------------------------------------------------
+
+- HASH: Hashes are maps between the string fields and the string values.
+
+127.0.0.1:6379> HMSET myNewObject attribute1 "Value 1" attribute2 "Value 2" attribute3 "Value 3"
+OK
+127.0.0.1:6379> HGETALL myNewObject
+1) "attribute1"
+2) "Value 1"
+3) "attribute2"
+4) "Value 2"
+5) "attribute3"
+6) "Value 3"
+127.0.0.1:6379> HGET myNewObject attribute2  // Getting object s key and value
+"Value 2"
+127.0.0.1:6379> HKEYS myNewObject // Getting all keys of the object
+1) "attribute1"
+2) "attribute2"
+3) "attribute3"
+
+---------------------------------------------------------------------------
+
+- LIST: Lists are simply lists of strings, sorted by insertion order.
+LINDEX: Gets an element from a list by its index
+LINSERT: Inserts an element before or after another element in a list
+LLEN: Gets the length of a list
+LPOP: Removes and gets the first element in a list
+RPOP: Removes and gets the last element in a list
+LRANGE: Gets a range of elements from a list
+LREM: Removes elements from a list
+LSET: Sets the value of an element in a list by its index
+RPUSH: Appends one or multiple values to a list
+
+127.0.0.1:6379> LPUSH myList "Value 1"
+(integer) 1
+127.0.0.1:6379> LPUSH myList "Value 2"
+(integer) 2
+127.0.0.1:6379> LPUSH myList "Value 3"
+(integer) 3
+127.0.0.1:6379> LPUSH myList "Value 4"
+(integer) 4
+127.0.0.1:6379> LPUSH myList "Value 4"
+(integer) 5
+127.0.0.1:6379> LPUSH myList "Value 5"
+(integer) 6
+127.0.0.1:6379> LRANGE myList 0 10
+1) "Value 5"
+2) "Value 4"
+3) "Value 4"
+4) "Value 3"
+5) "Value 2"
+6) "Value 1"
+127.0.0.1:6379> LREM myList -1 "Value 4"
+(integer) 1
+127.0.0.1:6379> LRANGE myList 0 10
+1) "Value 5"
+2) "Value 4"
+3) "Value 3"
+4) "Value 2"
+5) "Value 1"
+127.0.0.1:6379> LPOP myList
+"Value 5"
+127.0.0.1:6379> LRANGE myList 0 10
+1) "Value 4"
+2) "Value 3"
+3) "Value 2"
+4) "Value 1"
+127.0.0.1:6379> RPOP myList
+"Value 1"
+127.0.0.1:6379> LRANGE myList 0 10
+1) "Value 4"
+2) "Value 3"
+3) "Value 2"
+127.0.0.1:6379> RPUSH myList "Value 1" "Value 5"
+(integer) 5
+127.0.0.1:6379> LRANGE myList 0 10
+1) "Value 4"
+2) "Value 3"
+3) "Value 2"
+4) "Value 1"
+5) "Value 5"
+
+---------------------------------------------------------------------------
+
+- SET: Sets are an unordered collection of unique strings.
+
+SADD: Adds one or more members to a set
+SMEMBERS: Gets all the members in a set
+SISMEMBER: Determines if a given value is a member of a set
+SPOP: Removes and returns a random member from a set
+SREM: Removes one or more members from a set
+
+127.0.0.1:6379> SADD mySet "Set Value 1"
+(integer) 1
+127.0.0.1:6379> SADD mySet "Set Value 2"
+(integer) 1
+127.0.0.1:6379> SADD mySet "Set Value 3"
+(integer) 1
+127.0.0.1:6379> SADD mySet "Set Value 4"
+(integer) 1
+127.0.0.1:6379> SMEMBERS mySet
+1) "Set Value 2"
+2) "Set Value 3"
+3) "Set Value 4"
+4) "Set Value 1"
+127.0.0.1:6379> SISMEMBER mySet "Set Value 5"
+(integer) 0
+127.0.0.1:6379> SISMEMBER mySet "Set Value 4"
+(integer) 1
+127.0.0.1:6379> SISMEMBER mySet "set value 4"
+(integer) 0
+127.0.0.1:6379> SPOP mySet
+"Set Value 1"
+127.0.0.1:6379> SMEMBERS mySet
+1) "Set Value 2"
+2) "Set Value 3"
+3) "Set Value 4"
+127.0.0.1:6379> SPOP mySet
+"Set Value 4"
+127.0.0.1:6379> SMEMBERS mySet
+1) "Set Value 2"
+2) "Set Value 3"
+127.0.0.1:6379> SREM mySet "Set Value 3"
+(integer) 1
+127.0.0.1:6379> SMEMBERS mySet
+1) "Set Value 2"
+
+
+---------------------------------------------------------------------------
+
+- SORTED SET: Sorted Sets are similar to Redis Sets with the unique feature of values stored in a set. The difference is, every member of a Sorted Set is associated with a score, that is used in order to take the sorted set ordered, from the smallest to the greatest score.
+
+ZADD: Adds one or more members to a sorted set, or updates its score, if it already exists
+ZREM: Removes one or more members from a sorted set
+ZSCORE: Gets the score associated with the given member in a sorted set
+ZCOUNT: Counts the members in a sorted set with scores within the given values
+
+127.0.0.1:6379> ZADD mySortedSet 3 "Bilge"
+(integer) 1
+127.0.0.1:6379> ZADD mySortedSet 1 "Good"
+(integer) 1
+127.0.0.1:6379> ZADD mySortedSet 2 "Morning"
+(integer) 1
+127.0.0.1:6379> ZRANGE mySortedSet 0 -1 WITHSCORES
+1) "Good"
+2) "1"
+3) "Morning"
+4) "2"
+5) "Bilge"
+6) "3"
+127.0.0.1:6379> ZRANGE mySortedSet 0 -1
+1) "Good"
+2) "Morning"
+3) "Bilge"
+
+---------------------------------------------------------------------------
+
+PUBLISH SUBSCRIBE (PUB/SUB):  Pub/Sub implements the messaging system where the senders (publishers) sends the messages while the receivers (subscribers) receive them. The link by which the messages are transferred is called channel.
+
+Publisher -----message-----> Subscriber
+
+		|_____Channel_______|
+
+
+Redis-cli Window 1:
+	127.0.0.1:6379> PUBLISH myChat "First message"
+	(integer) 1
+	127.0.0.1:6379> PUBLISH myChat "Second message"
+	(integer) 1
+
+Redis-cli Window 2:
+
+	127.0.0.1:6379> SUBSCRIBE myChat
+	Reading messages... (press Ctrl-C to quit)
+	1) "subscribe"
+	2) "myChat"
+	3) (integer) 1
+	1) "message"
+	2) "myChat"
+	3) "First message"
+	1) "message"
+	2) "myChat"
+	3) "Second message"
+---------------------------------------------------------------------------
+
+- Transaction: Allow the execution of a group of commands in a single step. 
+
+MULTI: Marks the start of a transaction block
+EXEC: Executes all commands issued after MULTI
+DISCARD: Discards all commands issued after MULTI
+
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379> SADD mySet "Value1"
+QUEUED
+127.0.0.1:6379> SADD mySet "Value2"
+QUEUED
+127.0.0.1:6379> SMEMBERS mySet
+QUEUED
+127.0.0.1:6379> EXEC
+1) (integer) 1
+2) (integer) 1
+3) 1) "Value1"
+   2) "Value2"
+127.0.0.1:6379> SMEMBERS mySet
+1) "Value1"
+2) "Value2"
+
+---------------------------------------------------------------------------
